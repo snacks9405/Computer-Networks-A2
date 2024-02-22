@@ -27,7 +27,27 @@ public class OOClient
      */
     public static void main(String[] args)
     {
-        /* to be completed */
+        try {
+            socket = new Socket(hostName, portNumber);
+            openStreams();
+
+            String reply="", query="";
+            console = new BufferedReader(new InputStreamReader(System.in));
+
+            do {
+                if((reply = in.readUTF()).equals("Thank you for your visit!")) break;
+                System.out.println(reply);
+                query = console.readLine();
+                out.writeUTF(query);
+            } while(true);
+        
+        } catch(NumberFormatException e) {
+            e.printStackTrace();
+        } catch(IOException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
         
     }// main method
 
@@ -36,7 +56,8 @@ public class OOClient
      */
     static void openStreams() throws IOException
     {
-        /* to be completed */
+        in = new DataInputStream(socket.getInputStream());
+        out = new DataOutputStream(socket.getOutputStream());
         
     }// openStreams method
 
@@ -44,7 +65,13 @@ public class OOClient
      */
     static void close()
     {
-        /* to be completed */
+        try {
+            if (socket != null) socket.close();
+            if (in != null) in.close();
+            if (out != null) out.close();
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
 
     }// close method
 

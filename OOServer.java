@@ -20,7 +20,17 @@ public class OOServer
     */
     public static void main(String[] args)
     {
-        /* to be completed */
+      try {
+         serverSocket = new ServerSocket(portNumber);
+
+         while(true) {
+            clientSocket = serverSocket.accept();
+            new Thread(new OO(clientSocket)).start();
+         }
+
+      } catch(IOException e) {
+         e.printStackTrace();
+      }
         
     }// main method
 
@@ -55,16 +65,39 @@ class OO implements Runnable
      */
     OO(Socket clientSocket)
     {
-       /* to be completed */
-        
+      this.clientSocket = clientSocket;
+      order = new Order();
+      state = MAIN;
     }// OO constuctor
 
     /* each execution of this thread corresponds to one online ordering session
      */
     public void run()
     {
-       /* to be completed */
+      String bar = "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
+
+      try {
+         System.out.println("New connection established: " + clientSocket);
+         openStreams(clientSocket);
+         
+         out.writeUTF(bar
+            + "     Welcome to Hot Subs & Wedges!\n"
+            + bar
+            + "\n"
+            + mm.toString());
+
+         while(state != -1)
+            placeOrder();
+
+      } catch(UnknownHostException e) {
+         e.printStackTrace();
+      } catch(IOException e) {
+         e.printStackTrace();
+      } finally {
+         close();
+      }
         
+
     }// run method
 
     /* implement the OO protocol as described by the FSM in the handout
@@ -74,7 +107,40 @@ class OO implements Runnable
      */
     void placeOrder() throws IOException
     {
-       /* to be completed */    
+      Menu[] menus = new Menu[] { mm, psm, hsm, dom };
+      String bar = "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
+      StringBuilder query = new StringBuilder();
+      
+      try {
+         int reply = Integer.parseInt(in.readUTF());
+         if(reply <= 0 || reply > menus[state].getNumOptions())
+            throw new NumberFormatException();
+         
+         if(state == MAIN) {
+            state = reply;
+         } else if(state == DISPLAY_ORDER) {
+            if(reply == 1) {
+               state = -1;
+               out.writeUTF("Thank you for your visit!");
+               return;
+            }
+            state = MAIN;
+         } else {
+            if(reply == menus[state].getNumOptions()-1) state = DISPLAY_ORDER;
+            if(reply == menus[state].getNumOptions()-2) state = MAIN;
+            if(reply < menus[state].getNumOptions()-2) order.addItem(menus[state].getOption(reply));
+         }
+         query.append(bar);
+         
+      } catch(NumberFormatException e) {
+         query.append("Invalid option!\n");
+      }
+
+      if(state == DISPLAY_ORDER)
+         query.append(order.toString()).append("\n").append(bar);
+      query.append(menus[state].toString());
+      out.writeUTF(query.toString());
+
 
     }// placeOrder method
 
@@ -83,7 +149,8 @@ class OO implements Runnable
     */
     void openStreams(Socket socket) throws IOException
     {
-       /* to be completed */
+        in = new DataInputStream(socket.getInputStream());
+        out = new DataOutputStream(socket.getOutputStream());
         
     }// openStreams method
 
@@ -91,8 +158,13 @@ class OO implements Runnable
      */
     void close()
     {
-       /* to be completed */
-        
+        try {
+            if (clientSocket != null) clientSocket.close();
+            if (in != null) in.close();
+            if (out != null) out.close();
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }// close method
 
 }// OO class
