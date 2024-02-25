@@ -22,7 +22,7 @@ public class OOServer {
     {
       try {
          serverSocket = new ServerSocket(portNumber);
-
+         System.out.println("Server started: " + serverSocket);
          while(true) {
             clientSocket = serverSocket.accept();
             new Thread(new OO(clientSocket)).start();
@@ -94,6 +94,7 @@ class OO implements Runnable
       } catch(IOException e) {
          e.printStackTrace();
       } finally {
+         System.out.println("One more order processed!");
          close();
       }
         
