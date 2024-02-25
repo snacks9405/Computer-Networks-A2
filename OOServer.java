@@ -11,7 +11,7 @@ import java.util.*;
 
 public class OOServer {
    static ServerSocket serverSocket = null; // listening socket
-   static int portNumber = 5555; // port on which server listens
+   static int portNumber = 55555; // port on which server listens
    static Socket clientSocket = null; // socket to a client
 
    /*
@@ -19,20 +19,20 @@ public class OOServer {
     * and start a new thread to handle one online order
     */
    public static void main(String[] args) {
-         try {
-            serverSocket = new ServerSocket(portNumber);
-            System.out.println("Server started: " + serverSocket);
-            System.out.println("Waiting for a client...");
-            clientSocket = serverSocket.accept();
-            System.out.println("Connection established: " + clientSocket);
-            new Thread(new OO(clientSocket)).start();
+      try {
+         serverSocket = new ServerSocket(portNumber);
+         System.out.println("Server started: " + serverSocket);
+         System.out.println("Waiting for a client...");
+         clientSocket = serverSocket.accept();
+         System.out.println("Connection established: " + clientSocket);
+         new Thread(new OO(clientSocket)).run();
 
-            if (clientSocket != null) {
-               clientSocket.close();
-            }
-         } catch (IOException e) {
-            System.out.println("Server encountered an error. Shutting down...");
+         if (clientSocket != null) {
+            clientSocket.close();
          }
+      } catch (IOException e) {
+         System.out.println("Server encountered an error. Shutting down...");
+      }
    }// main method
 
 }// OOServer class
@@ -67,6 +67,7 @@ class OO implements Runnable {
    OO(Socket clientSocket) {
       this.clientSocket = clientSocket;
       state = MAIN;
+      order = new Order();
       try {
          openStreams(clientSocket);
       } catch (Exception e) {
@@ -80,15 +81,14 @@ class OO implements Runnable {
    public void run() {
       String separator = "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
       try {
-      out.writeUTF(separator + "     Welcome to Hot Subs & Wedges!     \n" +
+         out.writeUTF(separator + "     Welcome to Hot Subs & Wedges!     \n" +
                separator);
+         placeOrder();
       } catch (Exception e) {
          System.err.println(e.getMessage());
       } finally {
          close();
       }
-         
-
 
    }// run method
 
@@ -100,38 +100,57 @@ class OO implements Runnable {
     */
    void placeOrder() throws IOException {
       String request;
+      String separator = "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
+      int option;
       while (true) {
          Menu curMenu = (state > 1 ? (state == 2 ? hsm : dom) : (state == 0 ? mm : psm));
-
-         out.writeUTF(curMenu.toString());
+         if (curMenu == dom) {
+            out.writeUTF(order.toString() + "\n" + separator +  curMenu.toString());
+         } else {
+            out.writeUTF(separator + curMenu.toString());
+         }
          while (true) {
             try {
-            request = in.readUTF();
-            int option = Integer.parseInt(request);
-            if (option <= curMenu.getNumOptions() && option > 0) {
-               System.out.println("Input accepted");
-               break;
-            }
-            out.writeUTF("Invalid Option!");
+               request = in.readUTF();
+               option = Integer.parseInt(request);
+               if (option <= curMenu.getNumOptions() - 1 && option > 0) {
+                  System.out.println(separator);
+                  break;
+               }
+               out.writeUTF("Invalid Option!\n" + curMenu.toString());
             } catch (Exception e) {
                System.out.println("error with numbers");
-               continue;
             }
-            break;
          }
          switch (state) {
             case MAIN:
+               state = (option < 3 ? (option == 1 ? PIZZA_SLICE : HOT_SUB) : DISPLAY_ORDER);
                break;
             case PIZZA_SLICE:
+               if (option < 4) {
+                  order.addItem(psm.getOption(option));
+               } else {
+                  state = (option == 4 ? MAIN : DISPLAY_ORDER);
+               }
                break;
             case HOT_SUB:
+               if (option < 3) {
+                  order.addItem(hsm.getOption(option));
+               } else {
+                  state = (option == 3 ? MAIN : DISPLAY_ORDER);
+               }
                break;
             case DISPLAY_ORDER:
+
+               if (option == 1) {
+                  out.writeUTF("Thank you for your visit!");
+                  close();
+               }
+               state = MAIN;
                break;
             default:
                break;
          }
-         System.out.println(request);
       }
 
    }// placeOrder method
@@ -150,9 +169,9 @@ class OO implements Runnable {
     */
    void close() {
       try {
-      in.close();
-      out.close();
-      clientSocket.close();
+         in.close();
+         out.close();
+         clientSocket.close();
       } catch (Exception e) {
          System.out.println("Error occurred while closing connection");
       }

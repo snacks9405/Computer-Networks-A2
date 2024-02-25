@@ -11,7 +11,7 @@ import java.util.Scanner;
 
 public class OOClient {
     static String hostName = "localhost"; // name of server machine
-    static int portNumber = 5555; // port on which server listens
+    static int portNumber = 55555; // port on which server listens
     static Socket socket = null; // socket to server
     static DataInputStream in = null; // input stream from server
     static DataOutputStream out = null; // output stream to server
@@ -36,8 +36,8 @@ public class OOClient {
                 System.out.println(in.readUTF());
                 out.writeUTF(console.readLine());
             }
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();;
         }
     }// main method
 
