@@ -28,32 +28,16 @@ public class OOClient {
      */
     public static void main(String[] args) {
         try {
-            String request, reply;
             socket = new Socket(hostName, portNumber);
             System.out.println("Connected to server: " + socket);
             openStreams();
             System.out.println(in.readUTF());
             while (true) {
-                reply = in.readUTF();
-                System.out.println(reply);
-                while (true) {
-                    request = console.readLine();
-                    try {
-                        int requestInt = Integer.parseInt(request);
-                        if (requestInt >= 1 &&
-                                requestInt <= Integer.parseInt(reply.substring(reply.length() - 3, reply.length() - 2))) {
-                            break;
-                        }
-                        throw new NumberFormatException();
-                    } catch (NumberFormatException e) {
-                        System.out.println("Invalid option!");
-                        System.out.println(reply);
-                    }
-                }
-                out.writeUTF(request);
+                System.out.println(in.readUTF());
+                out.writeUTF(console.readLine());
             }
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
         }
     }// main method
 
