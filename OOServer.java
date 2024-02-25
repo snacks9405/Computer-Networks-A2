@@ -9,14 +9,14 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
-public class OOServer
-{
-    static ServerSocket serverSocket = null;  // listening socket
-    static int portNumber = 55555;            // port on which server listens
-    static Socket clientSocket = null;        // socket to a client
+public class OOServer {
+   static ServerSocket serverSocket = null; // listening socket
+   static int portNumber = 55555; // port on which server listens
+   static Socket clientSocket = null; // socket to a client
 
-    /* Start the server then repeatedly wait for a connection request, accept,
-       and start a new thread to handle one online order
+   /*
+    * Start the server then repeatedly wait for a connection request, accept,
+    * and start a new thread to handle one online order
     */
     public static void main(String[] args)
     {
@@ -166,5 +166,4 @@ class OO implements Runnable
             e.printStackTrace();
         }
     }// close method
-
 }// OO class
