@@ -26,18 +26,26 @@ public class OOClient {
      * The amount and format of the console output (e.g., user prompt, server
      * replies) are imposed as part of the problem statement in the handout.
      */
+
     public static void main(String[] args) {
         try {
             socket = new Socket(hostName, portNumber);
             System.out.println("Connected to server: " + socket);
             openStreams();
-            System.out.println(in.readUTF());
-            while (true) {
-                System.out.println(in.readUTF());
-                out.writeUTF(console.readLine());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();;
+            String reply="", query="";
+            do {
+                if((reply = in.readUTF()).equals("Thank you for your visit!")) break;
+                System.out.println(reply);
+                query = console.readLine();
+                out.writeUTF(query);
+            } while(true);
+        
+        } catch(NumberFormatException e) {
+            e.printStackTrace();
+        } catch(IOException e) {
+            e.printStackTrace();
+        } finally {
+            close();
         }
     }// main method
 
