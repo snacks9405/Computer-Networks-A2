@@ -1,13 +1,12 @@
 /* Client program for the OnlineOrder app
 
-   @author <YOUR FULL NAMES GO HERE>
+   @author Michael Hulbert, Woo Sik Choi, Alex Rodriguez
 
    @version CS 391 - Spring 2024 - A2
 */
 
 import java.io.*;
 import java.net.*;
-import java.util.Scanner;
 
 public class OOClient {
     static String hostName = "localhost"; // name of server machine

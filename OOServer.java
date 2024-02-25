@@ -1,13 +1,12 @@
 /* Server program for the OnlineOrder app
 
-   @author YOUR FULL NAMES GO HERE
+   @author Michael Hulbert, Woo Sik Choi, Alex Rodriguez
 
    @version CS 391 - Spring 2024 - A2
 */
 
 import java.net.*;
 import java.io.*;
-import java.util.*;
 
 public class OOServer {
    static ServerSocket serverSocket = null; // listening socket
